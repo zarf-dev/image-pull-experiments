@@ -5,3 +5,5 @@ skopeo-local
 dummy-files
 docker_builds
 .aider*
+data-injections/data/*
+*.zst

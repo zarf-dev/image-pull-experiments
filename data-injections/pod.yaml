@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: data-injections
+  labels:
+    app: data-injections
+spec:
+  initContainers:
+    - name: data-loader
+      image: busybox:latest
+      command:
+        [
+          "sh",
+          "-c",
+          # This command looks for the Zarf "data injection marker" which is a timestamped file that is injected after everything else and marks the injection as complete.
+          'while [ ! -f /data/###ZARF_DATA_INJECTION_MARKER### ]; do echo "waiting for zarf data sync" && sleep 1; done; echo "we are done waiting!"',
+        ]
+      resources:
+        requests:
+          memory: "16Mi"
+          cpu: "50m"
+        limits:
+          memory: "64Mi"
+          cpu: "100m"
+      volumeMounts:
+        - mountPath: /data
+          name: data
+  containers:
+  - name: size-checker
+    image: busybox:latest
+    command: ['sh', '-c']
+    args:
+    - |
+      echo "Waiting for data file..."
+      while [ ! -f /data/dummyfile ]; do
+        sleep 1
+      done
+      echo "Data file found! Checking size..."
+      echo "File size (ls -lh):"
+      ls -lh /data/dummyfile
+      echo "File size (du -h):"
+      du -h /data/dummyfile
+      echo "File size in bytes:"
+      wc -c < /data/dummyfile
+      # Keep container running to see logs
+      sleep 300
+    volumeMounts:
+    - name: data
+      mountPath: /data
+  volumes:
+  - name: data
+    emptyDir: {}

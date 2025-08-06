@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: data-size-checker
+  labels:
+    app: data-size-checker
+spec:
+  # Init container that pulls the data image
+  initContainers:
+  - name: data-puller
+    image: ghcr.io/austinabro321/10-gig-image:0.0.1  # Replace with your actual image
+    command: ['sh', '-c']
+    args:
+    - |
+      echo "Copying data file to shared volume..."
+      cp /dummyfile /shared-data/
+      echo "Data file copied successfully"
+      ls -lh /shared-data/
+    volumeMounts:
+    - name: shared-data
+      mountPath: /shared-data
+  
+  # Main container that checks the file size
+  containers:
+  - name: size-checker
+    image: busybox:latest
+    command: ['sh', '-c']
+    args:
+    - |
+      echo "Waiting for data file..."
+      while [ ! -f /shared-data/dummyfile ]; do
+        sleep 1
+      done
+      echo "Data file found! Checking size..."
+      echo "File size (ls -lh):"
+      ls -lh /shared-data/dummyfile
+      echo "File size (du -h):"
+      du -h /shared-data/dummyfile
+      echo "File size in bytes:"
+      wc -c < /shared-data/dummyfile
+      # Keep container running to see logs
+      sleep 300
+    volumeMounts:
+    - name: shared-data
+      mountPath: /shared-data
+  
+  # Shared volume between init and main containers
+  volumes:
+  - name: shared-data
+    emptyDir: {}
+  
+  restartPolicy: Never

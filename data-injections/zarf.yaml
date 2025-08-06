@@ -1,0 +1,25 @@
+kind: ZarfPackageConfig
+metadata:
+  name: data-injections
+  version: 3.5.0
+
+components:
+  - name: data-injections
+    required: true
+    manifests:
+      - name: data-injections
+        namespace: data-injections
+        files:
+          - pod.yaml
+    images:
+      - busybox:latest
+    # Add new data into the cluster, these will keep trying up until their timeout
+    dataInjections:
+      # Injection in the data directory using the data-loader init container
+      - source: data
+        target:
+          namespace: data-injections
+          selector: app=data-injections
+          container: data-loader
+          path: /data
+        compress: false

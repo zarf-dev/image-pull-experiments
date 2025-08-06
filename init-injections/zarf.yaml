@@ -1,0 +1,15 @@
+kind: ZarfPackageConfig
+metadata:
+  name: test-package
+  version: 1.0.0
+components:
+  - name: init-injection
+    required: true
+    manifests:
+      - name: simple-deployment
+        namespace: init-injection
+        files:
+          - pod.yaml
+    images:
+      - busybox:latest
+      - ghcr.io/austinabro321/10-gig-image:0.0.1
