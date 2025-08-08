@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kiwix-serve
+  namespace: kiwix-init
+  labels:
+    app: kiwix-serve
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: kiwix-serve
+  template:
+    metadata:
+      labels:
+        app: kiwix-serve
+    spec:
+      initContainers:
+        - name: data-puller
+          image: ghcr.io/austinabro321/zim-data:0.0.1
+          command:
+            - "sh"
+            - "-c"
+            - |
+              cp /kiwix/devops.stackexchange.com_en_all_2023-05.zim /data/devops.stackexchange.com_en_all_2023-05.zim
+              ls -la /data
+              echo "Data initialization complete"
+          volumeMounts:
+            - mountPath: /data
+              name: data
+      containers:
+        - name: kiwix-serve
+          image: "ghcr.io/kiwix/kiwix-serve:3.5.0-2"
+          command:
+            [
+              "sh",
+              "-c",
+              "ls -la /data && kiwix-serve -v /data/*.zim",
+            ]
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: kiwix-data

@@ -1,0 +1,20 @@
+kind: ZarfPackageConfig
+metadata:
+  name: kiwix-init
+  description: Demo Zarf init injection with Kiwix using container image
+  version: 3.5.0
+
+components:
+  - name: kiwix-serve-init
+    required: true
+    manifests:
+      - name: kiwix-serve-init
+        namespace: kiwix-init
+        files:
+          - manifests/persistence.yaml
+          - manifests/deployment.yaml
+          - manifests/service.yaml
+    images:
+      - ghcr.io/kiwix/kiwix-serve:3.5.0-2
+      - alpine:3.18
+      - ghcr.io/austinabro321/zim-data:0.0.1
