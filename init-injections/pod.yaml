@@ -8,7 +8,7 @@ spec:
   # Init container that pulls the data image
   initContainers:
   - name: data-puller
-    image: ghcr.io/austinabro321/10-gig-image:0.0.1  # Replace with your actual image
+    image: ghcr.io/austinabro321/10-gig-image:0.0.1  
     command: ['sh', '-c']
     args:
     - |
@@ -47,6 +47,5 @@ spec:
   # Shared volume between init and main containers
   volumes:
   - name: shared-data
-    emptyDir: {}
   
   restartPolicy: Never
