@@ -32,7 +32,6 @@ Some registries will not accept images over a certain size. In this case, you ca
 kind: ZarfPackageConfig
 metadata:
   name: my-data-app
-  version: 0.0.1
 
 components:
   - name: my-app
@@ -44,7 +43,7 @@ components:
       - source: zim-data
         target:
           namespace: my-app
-          selector: app=kiwix-serve
+          selector: app=my-app
           container: data-loader
           path: /data
         compress: true
@@ -54,15 +53,13 @@ components:
 ```yaml
 kind: ZarfPackageConfig
 metadata:
-  name: kiwix-init
-  description: Demo Zarf init injection with Kiwix using container image
-  version: 3.5.0
+  name: init-data-loading
 
 components:
   - name: kiwix-serve-init
     required: true
     images:
-      - ghcr.io/kiwix/kiwix-serve:3.5.0-2
+      - ghcr.io/my-app:1.0.0
       - your-registry/your-data:tag  # Your container with your data file
 ```
 
